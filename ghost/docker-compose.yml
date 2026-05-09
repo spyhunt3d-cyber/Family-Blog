@@ -44,7 +44,7 @@ services:
     volumes:
       - ${GHOST_CONTENT_PATH}:/var/lib/ghost/content
     networks:
-      - ${DOCKER_NETWORK}
+      - kaijusan-net
 
   ghost-db:
     image: mysql:8.0
@@ -58,7 +58,7 @@ services:
     volumes:
       - ${MYSQL_DATA_PATH}:/var/lib/mysql
     networks:
-      - ${DOCKER_NETWORK}
+      - kaijusan-net
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "ghost", "--password=${GHOST_DB_PASSWORD}"]
       interval: 10s
@@ -67,5 +67,5 @@ services:
       start_period: 30s
 
 networks:
-  ${DOCKER_NETWORK}:
+  kaijusan-net:
     external: true

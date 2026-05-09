@@ -18,8 +18,8 @@ services:
     extra_hosts:
       - "${GHOST_HOST}:${HOST_LAN_IP}"
     networks:
-      - ${DOCKER_NETWORK}
+      - kaijusan-net
 
 networks:
-  ${DOCKER_NETWORK}:
+  kaijusan-net:
     external: true
