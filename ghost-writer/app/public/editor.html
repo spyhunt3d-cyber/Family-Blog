@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Write — My Blog</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #161b1e;
+      --bg-2: #1d2428;
+      --bg-3: #242b30;
+      --bg-card: #1a2024;
+      --border: #2a3540;
+      --border-light: #324050;
+      --emerald: #2dba7e;
+      --emerald-dim: rgba(45,186,126,0.12);
+      --emerald-text: #3dd68c;
+      --text-primary: #e8ede8;
+      --text-secondary: #92a89a;
+      --text-muted: #5a6e62;
+      --danger: #e24b4a;
+      --heading-font: 'Playfair Display', serif;
+      --body-font: 'DM Sans', sans-serif;
+      --mono-font: 'DM Mono', monospace;
+      --radius: 8px;
+      --radius-lg: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--body-font);
+      background: var(--bg);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top Bar ──────────────────────────────────────────── */
+    .topbar {
+      height: 56px;
+      background: rgba(22,27,30,0.95);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      flex-shrink: 0;
+      backdrop-filter: blur(12px);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 0.75rem; flex: 1; }
+    .topbar-right { display: flex; align-items: center; gap: 0.5rem; }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      text-decoration: none;
+      padding: 0.35rem 0.6rem;
+      border-radius: var(--radius);
+      transition: color 0.2s, background 0.2s;
+    }
+    .back-btn:hover { color: var(--text-primary); background: var(--bg-3); }
+
+    .divider { width: 1px; height: 20px; background: var(--border); }
+
+    .post-status {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.25rem 0.6rem;
+      border-radius: 100px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .status-draft { background: rgba(90,110,98,0.2); color: var(--text-muted); border: 1px solid var(--border); }
+    .status-published { background: rgba(45,186,126,0.15); color: var(--emerald-text); border: 1px solid rgba(45,186,126,0.3); }
+
+    .autosave {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--body-font);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.45rem 1rem;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { color: var(--text-primary); border-color: var(--border-light); background: var(--bg-3); }
+    .btn-primary {
+      background: var(--emerald);
+      color: #0d1f18;
+    }
+    .btn-primary:hover { background: #35d490; transform: translateY(-1px); }
+    .btn-danger { background: transparent; color: var(--danger); border: 1px solid rgba(226,75,74,0.3); }
+    .btn-danger:hover { background: rgba(226,75,74,0.1); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ── Main Layout ──────────────────────────────────────── */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────── */
+    .sidebar {
+      width: 260px;
+      background: var(--bg-2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-section {
+      padding: 1rem 1rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-section:last-child { border-bottom: none; }
+
+    .sidebar-label {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Post list */
+    .post-list { display: flex; flex-direction: column; gap: 2px; }
+    .post-item {
+      padding: 0.6rem 0.75rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .post-item:hover { background: var(--bg-3); }
+    .post-item.active { background: var(--emerald-dim); }
+    .post-item-title {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .post-item-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+    .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border-light); }
+
+    .new-post-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      background: var(--emerald-dim);
+      border: 1px dashed rgba(45,186,126,0.3);
+      border-radius: var(--radius);
+      color: var(--emerald-text);
+      font-family: var(--body-font);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.6rem 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 0.75rem;
+    }
+    .new-post-btn:hover { background: rgba(45,186,126,0.18); border-color: var(--emerald); }
+
+    /* Settings panel */
+    .field { margin-bottom: 1rem; }
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+      letter-spacing: 0.04em;
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.55rem 0.75rem;
+      color: var(--text-primary);
+      font-family: var(--body-font);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus { border-color: var(--emerald); }
+    .field textarea { resize: vertical; min-height: 70px; }
+    .field select option { background: var(--bg-2); }
+
+    /* Feature image */
+    .feature-image-upload {
+      aspect-ratio: 16/9;
+      background: var(--bg-3);
+      border: 1px dashed var(--border-light);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      overflow: hidden;
+      position: relative;
+    }
+    .feature-image-upload:hover { border-color: var(--emerald); }
+    .feature-image-upload img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .feature-image-upload .upload-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .feature-image-upload svg { margin-bottom: 0.4rem; color: var(--text-muted); }
+
+    /* Tags */
+    .tags-input {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.4rem 0.5rem;
+      min-height: 38px;
+      cursor: text;
+    }
+    .tags-input:focus-within { border-color: var(--emerald); }
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: var(--emerald-dim);
+      color: var(--emerald-text);
+      font-size: 0.72rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 100px;
+      border: 1px solid rgba(45,186,126,0.2);
+    }
+    .tag-chip button {
+      background: none;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.85rem;
+      line-height: 1;
+      opacity: 0.7;
+    }
+    .tag-chip button:hover { opacity: 1; }
+    .tags-text-input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: var(--body-font);
+      font-size: 0.82rem;
+      flex: 1;
+      min-width: 80px;
+    }
+
+    /* ── Editor Area ──────────────────────────────────────── */
+    .editor-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Mode toggle */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--bg-3);
+      border-radius: 100px;
+      padding: 2px;
+      margin-right: 0.5rem;
+    }
+    .mode-btn {
+      font-family: var(--body-font);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.3rem 0.75rem;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-muted);
+      background: transparent;
+    }
+    .mode-btn.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+
+    /* Toolbar */
+    .toolbar {
+      padding: 0.5rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+      background: var(--bg-2);
+    }
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 0.1rem;
+    }
+    .toolbar-sep { width: 1px; height: 20px; background: var(--border); margin: 0 0.25rem; }
+    .tb-btn {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: var(--body-font);
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .tb-btn:hover { background: var(--bg-3); color: var(--text-primary); }
+    .tb-btn.active { background: var(--emerald-dim); color: var(--emerald-text); }
+    .tb-btn svg { width: 15px; height: 15px; }
+
+    /* Content area */
+    .content-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem 0;
+    }
+    .content-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Title */
+    #post-title {
+      font-family: var(--heading-font);
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      background: none;
+      border: none;
+      outline: none;
+      width: 100%;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      resize: none;
+      padding: 0;
+    }
+    #post-title::placeholder { color: var(--text-muted); }
+
+    .title-sep {
+      width: 48px;
+      height: 3px;
+      background: var(--emerald);
+      border-radius: 2px;
+      margin-bottom: 2rem;
+    }
+
+    /* Rich text editor */
+    #rich-editor {
+      outline: none;
+      min-height: 400px;
+      font-family: var(--body-font);
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+    #rich-editor:empty::before {
+      content: attr(data-placeholder);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    #rich-editor h1, #rich-editor h2, #rich-editor h3, #rich-editor h4 {
+      font-family: var(--heading-font);
+      color: var(--text-primary);
+      margin: 2rem 0 0.75rem;
+      letter-spacing: -0.015em;
+    }
+    #rich-editor h1 { font-size: 2rem; }
+    #rich-editor h2 { font-size: 1.6rem; }
+    #rich-editor h3 { font-size: 1.3rem; }
+    #rich-editor p { margin-bottom: 1.25rem; }
+    #rich-editor strong { color: var(--text-primary); font-weight: 500; }
+    #rich-editor em { color: var(--text-primary); font-style: italic; }
+    #rich-editor a { color: var(--emerald-text); text-decoration: underline; }
+    #rich-editor ul, #rich-editor ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    #rich-editor li { margin-bottom: 0.3rem; }
+    #rich-editor blockquote {
+      border-left: 3px solid var(--emerald);
+      padding: 1rem 1.5rem;
+      background: var(--bg-2);
+      border-radius: 0 8px 8px 0;
+      margin: 1.5rem 0;
+      font-family: var(--heading-font);
+      font-style: italic;
+      color: var(--text-primary);
+    }
+    #rich-editor code {
+      font-family: var(--mono-font);
+      font-size: 0.85em;
+      background: var(--bg-3);
+      color: var(--emerald-text);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+    }
+    #rich-editor pre {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+    }
+    #rich-editor pre code { background: none; padding: 0; }
+    #rich-editor img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    #rich-editor hr {
+      border: none;
+      height: 1px;
+      background: var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* Markdown editor */
+    #md-editor {
+      display: none;
+      width: 100%;
+      min-height: 400px;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text-secondary);
+      font-family: var(--mono-font);
+      font-size: 0.95rem;
+      line-height: 1.75;
+      resize: none;
+      padding: 0;
+    }
+
+    /* Image drop zone overlay */
+    .drop-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(45,186,126,0.1);
+      border: 3px dashed var(--emerald);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--heading-font);
+      font-size: 1.5rem;
+      color: var(--emerald-text);
+      pointer-events: none;
+    }
+    body.dragging .drop-overlay { display: flex; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.88rem;
+      color: var(--text-primary);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(45,186,126,0.4); }
+    .toast.error { border-color: rgba(226,75,74,0.4); }
+
+    /* Link dialog */
+    .link-dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      width: 380px;
+      z-index: 300;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+    }
+    .link-dialog h3 {
+      font-family: var(--heading-font);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .dialog-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 299;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Drop overlay -->
+<div class="drop-overlay">Drop image to upload</div>
+
+<!-- Link dialog -->
+<div class="dialog-overlay" id="dialog-overlay" onclick="closeLinkDialog()"></div>
+<div class="link-dialog" id="link-dialog">
+  <h3>Insert link</h3>
+  <div class="field">
+    <label>URL</label>
+    <input type="url" id="link-url" placeholder="https://...">
+  </div>
+  <div class="field">
+    <label>Text (optional)</label>
+    <input type="text" id="link-text" placeholder="Link text">
+  </div>
+  <div style="display:flex;gap:0.5rem;justify-content:flex-end">
+    <button class="btn btn-ghost" onclick="closeLinkDialog()">Cancel</button>
+    <button class="btn btn-primary" onclick="insertLink()">Insert</button>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/" class="back-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Blog
+    </a>
+    <div class="divider"></div>
+    <span class="post-status status-draft" id="status-badge">Draft</span>
+    <span class="autosave" id="autosave-label"></span>
+  </div>
+  <div class="topbar-right">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mode-rich" onclick="setMode('rich')">Rich text</button>
+      <button class="mode-btn" id="mode-md" onclick="setMode('markdown')">Markdown</button>
+    </div>
+    <button class="btn btn-ghost" onclick="savePost('draft')" id="save-btn">Save draft</button>
+    <button class="btn btn-primary" onclick="savePost('published')" id="publish-btn">Publish</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Posts list -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">My Posts</div>
+      <button class="new-post-btn" onclick="newPost()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New post
+      </button>
+      <div class="post-list" id="post-list">
+        <div style="font-size:0.8rem;color:var(--text-muted);padding:0.5rem 0.75rem;">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Post settings -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">Post Settings</div>
+
+      <div class="field">
+        <label>Visibility</label>
+        <select id="post-visibility">
+          <option value="members">Members only</option>
+          <option value="public">Public</option>
+          <option value="paid">Paid members</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Excerpt</label>
+        <textarea id="post-excerpt" placeholder="Brief description of this post..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Tags</label>
+        <div class="tags-input" id="tags-input" onclick="document.getElementById('tag-text-input').focus()">
+          <input type="text" id="tag-text-input" class="tags-text-input" placeholder="Add tag..." onkeydown="handleTagInput(event)">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Feature image</label>
+        <div class="feature-image-upload" id="feature-drop" onclick="document.getElementById('feature-file').click()">
+          <input type="file" id="feature-file" accept="image/*" style="display:none" onchange="uploadFeatureImage(this)">
+          <img id="feature-preview" style="display:none">
+          <div id="feature-hint">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <div class="upload-hint">Click to upload<br>feature image</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost" style="width:100%;margin-top:0.4rem;font-size:0.75rem;padding:0.35rem;" id="remove-feature-btn" onclick="removeFeatureImage()" style="display:none">Remove image</button>
+      </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="sidebar-section" id="delete-section" style="display:none">
+      <div class="sidebar-label">Danger</div>
+      <button class="btn btn-danger" style="width:100%" onclick="deletePost()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        Delete post
+      </button>
+    </div>
+  </div>
+
+  <!-- Editor area -->
+  <div class="editor-area">
+    <!-- Toolbar (rich text only) -->
+    <div class="toolbar" id="toolbar">
+      <div class="toolbar-group">
+        <button class="tb-btn" onclick="fmt('bold')" title="Bold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 010 8H6z"/><path d="M6 12h9a4 4 0 010 8H6z"/></svg>
+        </button>
+        <button class="tb-btn" onclick="fmt('italic')" title="Italic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+        </button>
+        <button class="tb-btn" onclick="fmt('underline')" title="Underline">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+        </button>
+        <button class="tb-btn" onclick="fmt('strikeThrough')" title="Strikethrough">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 6C16 6 14.5 4 12 4s-4 1.5-4 4c0 5.5 8 4 8 8 0 2.5-1.5 4-4 4s-4-2-4-2"/></svg>
+        </button>
+      </div>
+      <div class="toolbar-sep"></div>
+      <div class="toolbar-group">
+        <button class="tb-btn" onclick="setHeading(2)" title="Heading 2"><span style="font-family:var(--heading-font);font-weight:700;font-size:0.9rem;">H2</span></button>
+        <button class="tb-btn" onclick="setHeading(3)" title="Heading 3"><span style="font-family:var(--heading-font);font-weight:700;font-size:0.9rem;">H3</span></button>
+        <button class="tb-btn" onclick="setHeading(4)" title="Heading 4"><span style="font-family:var(--heading-font);font-weight:700;font-size:0.9rem;">H4</span></button>
+      </div>
+      <div class="toolbar-sep"></div>
+      <div class="toolbar-group">
+        <button class="tb-btn" onclick="fmt('insertUnorderedList')" title="Bullet list">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>
+        </button>
+        <button class="tb-btn" onclick="fmt('insertOrderedList')" title="Numbered list">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+        </button>
+        <button class="tb-btn" onclick="fmt('formatBlock', 'blockquote')" title="Blockquote">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+        </button>
+        <button class="tb-btn" onclick="fmt('formatBlock', 'pre')" title="Code block">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </button>
+      </div>
+      <div class="toolbar-sep"></div>
+      <div class="toolbar-group">
+        <button class="tb-btn" onclick="openLinkDialog()" title="Insert link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        </button>
+        <button class="tb-btn" onclick="triggerImageUpload()" title="Insert image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </button>
+        <input type="file" id="inline-image-file" accept="image/*" style="display:none" onchange="uploadInlineImage(this)">
+        <button class="tb-btn" onclick="insertHR()" title="Horizontal rule">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+      <div class="toolbar-sep"></div>
+      <div class="toolbar-group">
+        <button class="tb-btn" onclick="document.execCommand('undo')" title="Undo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/></svg>
+        </button>
+        <button class="tb-btn" onclick="document.execCommand('redo')" title="Redo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-wrap">
+      <div class="content-inner">
+        <textarea id="post-title" placeholder="Post title..." rows="1" oninput="autoResize(this); markDirty()"></textarea>
+        <div class="title-sep"></div>
+        <div id="rich-editor" contenteditable="true" data-placeholder="Start writing your story..." oninput="markDirty()"></div>
+        <textarea id="md-editor" placeholder="Start writing in Markdown..." oninput="markDirty()"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────
+let currentPostId = null;
+let currentUpdatedAt = null;
+let isDirty = false;
+let autoSaveTimer = null;
+let currentMode = 'rich';
+let tags = [];
+let featureImageUrl = null;
+
+// ── Init ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  loadPosts();
+
+  // Check if editing existing post
+  const path = window.location.pathname;
+  const match = path.match(/\/write\/edit\/([a-f0-9]+)/);
+  if (match) {
+    loadPost(match[1]);
+  }
+
+  // Drag and drop images
+  document.addEventListener('dragenter', () => document.body.classList.add('dragging'));
+  document.addEventListener('dragleave', e => {
+    if (!e.relatedTarget) document.body.classList.remove('dragging');
+  });
+  document.addEventListener('dragover', e => e.preventDefault());
+  document.addEventListener('drop', handleDrop);
+
+  // Auto resize title
+  autoResize(document.getElementById('post-title'));
+});
+
+// ── Auto resize textarea ──────────────────────────────────────
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+// ── Mode toggle ───────────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  const rich = document.getElementById('rich-editor');
+  const md = document.getElementById('md-editor');
+  const toolbar = document.getElementById('toolbar');
+  const richBtn = document.getElementById('mode-rich');
+  const mdBtn = document.getElementById('mode-md');
+
+  if (mode === 'rich') {
+    // Convert markdown to html if switching from md
+    if (md.value) {
+      rich.innerHTML = mdToHtml(md.value);
+    }
+    rich.style.display = 'block';
+    md.style.display = 'none';
+    toolbar.style.display = 'flex';
+    richBtn.classList.add('active');
+    mdBtn.classList.remove('active');
+  } else {
+    // Convert html to markdown if switching from rich
+    const html = rich.innerHTML;
+    if (html && html !== '<br>') {
+      md.value = htmlToMd(html);
+    }
+    rich.style.display = 'none';
+    md.style.display = 'block';
+    toolbar.style.display = 'none';
+    mdBtn.classList.add('active');
+    richBtn.classList.remove('active');
+    autoResize(md);
+  }
+}
+
+// ── Simple markdown/html converters ──────────────────────────
+function mdToHtml(md) {
+  return md
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<[hH\d|ul|ol|li|blockquote|pre])(.+)$/gm, '<p>$1</p>');
+}
+
+function htmlToMd(html) {
+  return html
+    .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n\n')
+    .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n\n')
+    .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n\n')
+    .replace(/<h4[^>]*>(.*?)<\/h4>/gi, '#### $1\n\n')
+    .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
+    .replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**')
+    .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
+    .replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*')
+    .replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
+    .replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, '> $1\n\n')
+    .replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1\n')
+    .replace(/<ul[^>]*>|<\/ul>|<ol[^>]*>|<\/ol>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n')
+    .replace(/<hr\s*\/?>/gi, '\n---\n\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .trim();
+}
+
+// ── Get content ───────────────────────────────────────────────
+function getContent() {
+  if (currentMode === 'rich') {
+    return document.getElementById('rich-editor').innerHTML;
+  } else {
+    return mdToHtml(document.getElementById('md-editor').value);
+  }
+}
+
+// ── Format commands ───────────────────────────────────────────
+function fmt(cmd, val) {
+  document.getElementById('rich-editor').focus();
+  document.execCommand(cmd, false, val || null);
+  markDirty();
+}
+
+function setHeading(level) {
+  document.getElementById('rich-editor').focus();
+  document.execCommand('formatBlock', false, `h${level}`);
+  markDirty();
+}
+
+function insertHR() {
+  document.getElementById('rich-editor').focus();
+  document.execCommand('insertHTML', false, '<hr>');
+  markDirty();
+}
+
+// ── Link dialog ───────────────────────────────────────────────
+let savedSelection = null;
+
+function openLinkDialog() {
+  const sel = window.getSelection();
+  if (sel.rangeCount) savedSelection = sel.getRangeAt(0).cloneRange();
+  const linkText = sel.toString();
+  document.getElementById('link-text').value = linkText;
+  document.getElementById('link-url').value = '';
+  document.getElementById('link-dialog').style.display = 'block';
+  document.getElementById('dialog-overlay').style.display = 'block';
+  document.getElementById('link-url').focus();
+}
+
+function closeLinkDialog() {
+  document.getElementById('link-dialog').style.display = 'none';
+  document.getElementById('dialog-overlay').style.display = 'none';
+}
+
+function insertLink() {
+  const url = document.getElementById('link-url').value;
+  const text = document.getElementById('link-text').value;
+  if (!url) return closeLinkDialog();
+
+  document.getElementById('rich-editor').focus();
+  if (savedSelection) {
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedSelection);
+  }
+  document.execCommand('insertHTML', false, `<a href="${url}">${text || url}</a>`);
+  closeLinkDialog();
+  markDirty();
+}
+
+// ── Image upload ──────────────────────────────────────────────
+function triggerImageUpload() {
+  document.getElementById('inline-image-file').click();
+}
+
+async function uploadInlineImage(input) {
+  if (!input.files[0]) return;
+  const url = await uploadImage(input.files[0]);
+  if (url) {
+    document.getElementById('rich-editor').focus();
+    document.execCommand('insertHTML', false, `<img src="${url}" alt="">`);
+    markDirty();
+  }
+  input.value = '';
+}
+
+async function uploadFeatureImage(input) {
+  if (!input.files[0]) return;
+  const url = await uploadImage(input.files[0]);
+  if (url) {
+    featureImageUrl = url;
+    const preview = document.getElementById('feature-preview');
+    preview.src = url;
+    preview.style.display = 'block';
+    document.getElementById('feature-hint').style.display = 'none';
+    document.getElementById('remove-feature-btn').style.display = 'block';
+    markDirty();
+  }
+}
+
+function removeFeatureImage() {
+  featureImageUrl = null;
+  document.getElementById('feature-preview').style.display = 'none';
+  document.getElementById('feature-hint').style.display = 'flex';
+  document.getElementById('remove-feature-btn').style.display = 'none';
+  markDirty();
+}
+
+async function uploadImage(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const res = await fetch('/write/api/images', { method: 'POST', body: formData });
+    const data = await res.json();
+    return data.images?.[0]?.url || null;
+  } catch (err) {
+    showToast('Failed to upload image', 'error');
+    return null;
+  }
+}
+
+async function handleDrop(e) {
+  e.preventDefault();
+  document.body.classList.remove('dragging');
+  const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
+  for (const file of files) {
+    const url = await uploadImage(file);
+    if (url) {
+      document.getElementById('rich-editor').focus();
+      document.execCommand('insertHTML', false, `<img src="${url}" alt="">`);
+      markDirty();
+    }
+  }
+}
+
+// ── Tags ──────────────────────────────────────────────────────
+function handleTagInput(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim().replace(/,$/, '');
+    if (val && !tags.includes(val)) {
+      tags.push(val);
+      renderTags();
+      markDirty();
+    }
+    e.target.value = '';
+  } else if (e.key === 'Backspace' && !e.target.value && tags.length) {
+    tags.pop();
+    renderTags();
+    markDirty();
+  }
+}
+
+function removeTag(tag) {
+  tags = tags.filter(t => t !== tag);
+  renderTags();
+  markDirty();
+}
+
+function renderTags() {
+  const container = document.getElementById('tags-input');
+  const input = document.getElementById('tag-text-input');
+  container.innerHTML = '';
+  tags.forEach(tag => {
+    const chip = document.createElement('span');
+    chip.className = 'tag-chip';
+    chip.innerHTML = `${tag}<button onclick="removeTag('${tag}')">×</button>`;
+    container.appendChild(chip);
+  });
+  container.appendChild(input);
+}
+
+// ── Load posts list ───────────────────────────────────────────
+async function loadPosts() {
+  try {
+    const res = await fetch('/write/api/posts');
+    const data = await res.json();
+    const list = document.getElementById('post-list');
+
+    if (!data.posts?.length) {
+      list.innerHTML = '<div style="font-size:0.8rem;color:var(--text-muted);padding:0.5rem 0.75rem;">No posts yet</div>';
+      return;
+    }
+
+    list.innerHTML = data.posts.map(p => `
+      <div class="post-item ${p.id === currentPostId ? 'active' : ''}" onclick="loadPost('${p.id}')">
+        <div class="post-item-title">${p.title || 'Untitled'}</div>
+        <div class="post-item-meta">
+          <span>${p.status}</span>
+          <span class="dot"></span>
+          <span>${formatDate(p.updated_at)}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('Failed to load posts', err);
+  }
+}
+
+// ── Load single post ──────────────────────────────────────────
+async function loadPost(id) {
+  try {
+    const res = await fetch(`/write/api/posts/${id}`);
+    const data = await res.json();
+    const post = data.posts?.[0];
+    if (!post) return;
+
+    currentPostId = post.id;
+    currentUpdatedAt = post.updated_at;
+
+    document.getElementById('post-title').value = post.title || '';
+    autoResize(document.getElementById('post-title'));
+
+    // Load content
+    const html = post.html || '';
+    if (currentMode === 'rich') {
+      document.getElementById('rich-editor').innerHTML = html;
+    } else {
+      document.getElementById('md-editor').value = htmlToMd(html);
+    }
+
+    // Settings
+    document.getElementById('post-visibility').value = post.visibility || 'members';
+    document.getElementById('post-excerpt').value = post.custom_excerpt || '';
+
+    // Tags
+    tags = (post.tags || []).map(t => t.name);
+    renderTags();
+
+    // Feature image
+    if (post.feature_image) {
+      featureImageUrl = post.feature_image;
+      const preview = document.getElementById('feature-preview');
+      preview.src = post.feature_image;
+      preview.style.display = 'block';
+      document.getElementById('feature-hint').style.display = 'none';
+      document.getElementById('remove-feature-btn').style.display = 'block';
+    }
+
+    // Status
+    updateStatusBadge(post.status);
+
+    // Show delete button
+    document.getElementById('delete-section').style.display = 'block';
+
+    // Update URL
+    window.history.pushState({}, '', `/write/edit/${id}`);
+
+    // Highlight in sidebar
+    loadPosts();
+    isDirty = false;
+    document.getElementById('autosave-label').textContent = '';
+  } catch (err) {
+    showToast('Failed to load post', 'error');
+  }
+}
+
+// ── New post ──────────────────────────────────────────────────
+function newPost() {
+  currentPostId = null;
+  currentUpdatedAt = null;
+  featureImageUrl = null;
+  tags = [];
+  isDirty = false;
+
+  document.getElementById('post-title').value = '';
+  document.getElementById('rich-editor').innerHTML = '';
+  document.getElementById('md-editor').value = '';
+  document.getElementById('post-visibility').value = 'members';
+  document.getElementById('post-excerpt').value = '';
+  document.getElementById('feature-preview').style.display = 'none';
+  document.getElementById('feature-hint').style.display = 'flex';
+  document.getElementById('remove-feature-btn').style.display = 'none';
+  document.getElementById('delete-section').style.display = 'none';
+  renderTags();
+  updateStatusBadge('draft');
+
+  window.history.pushState({}, '', '/write');
+  document.getElementById('post-title').focus();
+  document.getElementById('autosave-label').textContent = '';
+  loadPosts();
+}
+
+// ── Save / publish ────────────────────────────────────────────
+async function savePost(status) {
+  const title = document.getElementById('post-title').value.trim() || 'Untitled';
+  const html = getContent();
+  const visibility = document.getElementById('post-visibility').value;
+  const excerpt = document.getElementById('post-excerpt').value.trim();
+
+  const saveBtn = document.getElementById('save-btn');
+  const publishBtn = document.getElementById('publish-btn');
+  saveBtn.disabled = true;
+  publishBtn.disabled = true;
+
+  try {
+    let res, data;
+    const payload = { title, html, status, visibility, feature_image: featureImageUrl, tags, excerpt };
+
+    if (currentPostId) {
+      payload.updated_at = currentUpdatedAt;
+      res = await fetch(`/write/api/posts/${currentPostId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      res = await fetch('/write/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    data = await res.json();
+    const post = data.posts?.[0];
+
+    if (post) {
+      currentPostId = post.id;
+      currentUpdatedAt = post.updated_at;
+      isDirty = false;
+      updateStatusBadge(post.status);
+      window.history.pushState({}, '', `/write/edit/${post.id}`);
+      document.getElementById('delete-section').style.display = 'block';
+      document.getElementById('autosave-label').textContent = `Saved ${formatTime(new Date())}`;
+      showToast(status === 'published' ? '✓ Post published!' : '✓ Draft saved', 'success');
+      loadPosts();
+    } else {
+      throw new Error(JSON.stringify(data));
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to save post', 'error');
+  }
+
+  saveBtn.disabled = false;
+  publishBtn.disabled = false;
+}
+
+// ── Delete post ───────────────────────────────────────────────
+async function deletePost() {
+  if (!currentPostId) return;
+  if (!confirm('Delete this post permanently?')) return;
+
+  try {
+    await fetch(`/write/api/posts/${currentPostId}`, { method: 'DELETE' });
+    showToast('Post deleted', 'success');
+    newPost();
+  } catch (err) {
+    showToast('Failed to delete post', 'error');
+  }
+}
+
+// ── Auto save ─────────────────────────────────────────────────
+function markDirty() {
+  isDirty = true;
+  document.getElementById('autosave-label').textContent = 'Unsaved changes';
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    if (isDirty) savePost('draft');
+  }, 3000);
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function updateStatusBadge(status) {
+  const badge = document.getElementById('status-badge');
+  badge.textContent = status === 'published' ? 'Published' : 'Draft';
+  badge.className = `post-status ${status === 'published' ? 'status-published' : 'status-draft'}`;
+
+  const publishBtn = document.getElementById('publish-btn');
+  const saveBtn = document.getElementById('save-btn');
+  if (status === 'published') {
+    publishBtn.textContent = 'Update';
+    saveBtn.textContent = 'Unpublish';
+  } else {
+    publishBtn.textContent = 'Publish';
+    saveBtn.textContent = 'Save draft';
+  }
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function formatTime(d) {
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+    e.preventDefault();
+    savePost('draft');
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    savePost('published');
+  }
+});
+</script>
+</body>
+</html>

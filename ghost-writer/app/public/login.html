@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Sign In to Write</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #161b1e; --bg-card: #1a2024; --border: #2a3540;
+      --emerald: #2dba7e; --emerald-text: #3dd68c;
+      --text-primary: #e8ede8; --text-secondary: #92a89a; --text-muted: #5a6e62;
+      --heading-font: 'Playfair Display', serif; --body-font: 'DM Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--body-font); background: var(--bg); color: var(--text-primary);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem;
+      background-image: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(45,186,126,0.06) 0%, transparent 70%);
+    }
+    .card {
+      width: 100%; max-width: 400px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem;
+      animation: fadeUp 0.5s ease both;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .logo { text-align: center; margin-bottom: 2rem; }
+    .pencil {
+      width: 52px; height: 52px; background: rgba(45,186,126,0.1);
+      border: 1px solid rgba(45,186,126,0.2); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem; color: var(--emerald-text);
+    }
+    .logo-name { font-family: var(--heading-font); font-size: 1.4rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .logo-tag { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+    h2 { font-family: var(--heading-font); font-size: 1.4rem; font-weight: 600; text-align: center; margin-bottom: 0.4rem; }
+    p { font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 1.75rem; line-height: 1.6; }
+    label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.35rem; }
+    input {
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.75rem 1rem; color: var(--text-primary);
+      font-family: var(--body-font); font-size: 0.95rem; outline: none;
+      transition: border-color 0.2s; margin-bottom: 1rem;
+    }
+    input:focus { border-color: var(--emerald); }
+    button {
+      width: 100%; background: var(--emerald); color: #0d1f18;
+      font-family: var(--body-font); font-weight: 500; font-size: 0.95rem;
+      padding: 0.85rem; border: none; border-radius: 100px;
+      cursor: pointer; transition: background 0.2s, transform 0.2s;
+    }
+    button:hover { background: #35d490; transform: translateY(-1px); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .error {
+      background: rgba(226,75,74,0.1); border: 1px solid rgba(226,75,74,0.3);
+      color: #f09595; font-size: 0.85rem; padding: 0.75rem 1rem;
+      border-radius: 8px; margin-bottom: 1rem; display: none;
+    }
+    .success {
+      background: rgba(45,186,126,0.1); border: 1px solid rgba(45,186,126,0.3);
+      color: var(--emerald-text); font-size: 0.88rem; padding: 1rem;
+      border-radius: 8px; margin-bottom: 1rem; display: none; text-align: center; line-height: 1.6;
+    }
+    .success svg { margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="pencil">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+      <div class="logo-name">My Blog</div>
+      <div class="logo-tag">Writer</div>
+    </div>
+
+    <div id="request-form">
+      <h2>Sign in to write</h2>
+      <p>Enter your email and we'll send you a magic link to access the editor</p>
+      <div class="error" id="error"></div>
+      <label>Email</label>
+      <input type="email" id="email" placeholder="your@email.com" autofocus>
+      <button id="btn" onclick="sendLink()">Send magic link</button>
+    </div>
+
+    <div class="success" id="success">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 0.5rem">
+        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+      </svg>
+      <strong>Check your email!</strong><br>
+      We sent a magic link to <span id="sent-email"></span>.<br>
+      Click the link to access the editor.
+    </div>
+  </div>
+
+  <script>
+    // Show error from URL params
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error')) {
+      document.getElementById('error').textContent = 'That link has expired or is invalid. Please request a new one.';
+      document.getElementById('error').style.display = 'block';
+    }
+
+    document.getElementById('email').addEventListener('keydown', e => {
+      if (e.key === 'Enter') sendLink();
+    });
+
+    async function sendLink() {
+      const email = document.getElementById('email').value.trim();
+      const btn = document.getElementById('btn');
+      const error = document.getElementById('error');
+      if (!email) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      error.style.display = 'none';
+
+      try {
+        const res = await fetch('/write/auth/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          localStorage.setItem('writer_redirect', window.location.pathname.includes('edit') ? window.location.pathname : '/write');
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          document.getElementById('request-form').style.display = 'none';
+          document.getElementById('sent-email').textContent = email;
+          document.getElementById('success').style.display = 'block';
+        } else {
+          error.textContent = data.error || 'Something went wrong. Please try again.';
+          error.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Send magic link';
+        }
+      } catch (err) {
+        error.textContent = 'Connection error. Please try again.';
+        error.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Send magic link';
+      }
+    }
+  </script>
+</body>
+</html>
