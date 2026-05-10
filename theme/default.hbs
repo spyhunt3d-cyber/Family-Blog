@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="{{@site.locale}}" class="{{body_class}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{meta_title}}</title>
+  <link rel="canonical" href="{{canonical_url}}">
+  {{ghost_head}}
+  <link rel="stylesheet" href="{{asset "css/main.css"}}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap">
+  <style>
+    .kg-width-wide  { margin-left: -8vw; margin-right: -8vw; }
+    .kg-width-full  { margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); width: 100vw; }
+    .kg-card { margin: 1.5rem 0; }
+    .kg-image { max-width: 100%; border-radius: 8px; }
+    .kg-bookmark-card { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .kg-gallery-container { display: flex; flex-direction: column; }
+    .kg-gallery-row { display: flex; gap: 6px; margin-bottom: 6px; }
+    .kg-gallery-image img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+  </style>
+</head>
+<body class="{{body_class}}">
+  {{> header}}
+  <div class="site-content">
+    {{{body}}}
+  </div>
+  {{> footer}}
+  {{ghost_foot}}
+  <script src="{{asset "js/main.js"}}"></script>
+</body>
+</html>

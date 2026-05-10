@@ -1,0 +1,29 @@
+{
+  "name": "ghost-blog-theme",
+  "description": "My Blog — Custom Ghost Theme",
+  "version": "1.1.0",
+  "author": {
+    "email": "contact@example.com"
+  },
+  "engines": {
+    "ghost": ">=5.0.0"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ghost",
+    "theme",
+    "family"
+  ],
+  "config": {
+    "posts_per_page": 12,
+    "image_sizes": {
+      "xxs": { "width": 30 },
+      "xs":  { "width": 100 },
+      "s":   { "width": 300 },
+      "m":   { "width": 600 },
+      "l":   { "width": 1000 },
+      "xl":  { "width": 2000 }
+    },
+    "card_assets": true
+  }
+}

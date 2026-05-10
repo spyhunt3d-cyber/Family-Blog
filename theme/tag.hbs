@@ -1,0 +1,24 @@
+{{!< default}}
+
+<div class="section">
+  <div class="section-header">
+    <h2 class="section-title">
+      #{{tag.name}}
+    </h2>
+    {{#if tag.description}}
+      <p style="color:var(--text-muted);font-size:0.9rem;">{{tag.description}}</p>
+    {{/if}}
+  </div>
+
+  {{#if posts}}
+    <div class="post-grid">
+      {{#foreach posts}}
+        {{> post-card}}
+      {{/foreach}}
+    </div>
+  {{else}}
+    <div class="empty-state">
+      <h3>No posts in this tag yet</h3>
+    </div>
+  {{/if}}
+</div>

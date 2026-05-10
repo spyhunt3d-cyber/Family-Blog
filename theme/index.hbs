@@ -1,0 +1,122 @@
+{{!< default}}
+
+{{! ── Hero: Featured Post ─────────────────────────────── }}
+{{#get "posts" limit="1" filter="featured:true" include="authors,tags"}}
+  {{#foreach posts}}
+    <section class="hero">
+      {{#if feature_image}}
+        <div class="hero-image">
+          <img src="{{img_url feature_image size="xl"}}" alt="{{title}}">
+        </div>
+      {{else}}
+        <div class="hero-no-image"></div>
+      {{/if}}
+      <div class="hero-gradient"></div>
+
+      <div class="hero-content">
+        {{#primary_tag}}
+          <div class="hero-cat fade-up fade-up-1">{{name}}</div>
+        {{/primary_tag}}
+        <h1 class="hero-title fade-up fade-up-2">
+          <a href="{{url}}">{{title}}</a>
+        </h1>
+        <div class="hero-byline fade-up fade-up-3">
+          {{#primary_author}}{{name}}{{/primary_author}}
+          <span>·</span>
+          <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="MMMM D, YYYY"}}</time>
+          <span>·</span>
+          {{reading_time}}
+        </div>
+        <a href="{{url}}" class="hero-cta fade-up fade-up-4">
+          Continue Reading <em>→</em>
+        </a>
+      </div>
+    </section>
+  {{/foreach}}
+{{/get}}
+
+{{! ── Fallback hero if no featured post ──────────────── }}
+{{#get "posts" limit="1" filter="featured:true"}}
+  {{#unless posts}}
+    <section class="hero" style="min-height:50vh;">
+      <div class="hero-no-image"></div>
+      <div class="hero-gradient"></div>
+      <div class="hero-content">
+        <div class="hero-cat fade-up fade-up-1">Welcome</div>
+        <h1 class="hero-title fade-up fade-up-2">{{@site.title}}</h1>
+        <p class="hero-excerpt fade-up fade-up-3">Our family, our stories</p>
+      </div>
+    </section>
+  {{/unless}}
+{{/get}}
+
+{{! ── Post List ───────────────────────────────────────── }}
+<div class="section">
+  <div class="section-header">Recent Stories</div>
+
+  {{#if posts}}
+
+    {{#if @member}}
+      {{! Member: show full post strip }}
+      <div class="post-strip">
+        {{#foreach posts}}
+          {{> post-card}}
+        {{/foreach}}
+      </div>
+
+    {{else}}
+      {{! Non-member: show blurred locked strip }}
+      <div class="post-strip">
+        {{#foreach posts}}
+          <div class="post-row-locked">
+            {{#if feature_image}}
+              <div class="post-thumb-locked">
+                <img src="{{img_url feature_image size="s"}}" alt="">
+              </div>
+            {{else}}
+              <div class="post-thumb-locked-placeholder"></div>
+            {{/if}}
+            <div class="post-row-text-locked">
+              <div class="post-row-blur">
+                <div class="post-row-tag">{{#primary_tag}}{{name}}{{/primary_tag}}</div>
+                <div class="post-row-title">{{title}}</div>
+                <div class="post-row-meta">{{date format="MMM D, YYYY"}} · {{reading_time}}</div>
+              </div>
+              <div class="post-lock-icon">🔒</div>
+            </div>
+          </div>
+        {{/foreach}}
+      </div>
+
+      <div class="access-wall">
+        <div class="access-wall-icon">🔒</div>
+        <h2>This blog is private</h2>
+        <p>Sign in with your family email to read — you'll receive a magic link instantly. No password needed.</p>
+        <a href="/#/portal/signin" class="access-wall-btn">Sign In to Read →</a>
+      </div>
+    {{/if}}
+
+    {{#if @member}}
+      {{#if pagination}}
+        <div class="pagination">
+          {{#if pagination.prev}}
+            <a href="{{page_url pagination.prev}}">&larr; Newer</a>
+          {{/if}}
+          <span class="current">{{pagination.page}} of {{pagination.pages}}</span>
+          {{#if pagination.next}}
+            <a href="{{page_url pagination.next}}">Older &rarr;</a>
+          {{/if}}
+        </div>
+      {{/if}}
+    {{/if}}
+
+  {{else}}
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+      </svg>
+      <h3>No stories yet</h3>
+      <p>The first post is just waiting to be written.</p>
+    </div>
+  {{/if}}
+</div>

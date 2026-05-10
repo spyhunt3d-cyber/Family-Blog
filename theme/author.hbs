@@ -1,0 +1,36 @@
+{{!< default}}
+
+<div class="section">
+  <div class="section-header" style="align-items:flex-start;flex-direction:column;gap:1rem;">
+    <div style="display:flex;align-items:center;gap:1.25rem;">
+      {{#primary_author}}
+        {{#if profile_image}}
+          <img src="{{img_url profile_image size="s"}}" alt="{{name}}"
+            style="width:72px;height:72px;border-radius:50%;border:2px solid var(--emerald);object-fit:cover;">
+        {{else}}
+          <div class="author-box-avatar-placeholder" style="width:72px;height:72px;font-size:1.6rem;">
+            {{name.[0]}}
+          </div>
+        {{/if}}
+        <div>
+          <h2 class="section-title" style="margin-bottom:0.25rem;">{{name}}</h2>
+          {{#if bio}}
+            <p style="color:var(--text-muted);font-size:0.9rem;margin:0;">{{bio}}</p>
+          {{/if}}
+        </div>
+      {{/primary_author}}
+    </div>
+  </div>
+
+  {{#if posts}}
+    <div class="post-grid">
+      {{#foreach posts}}
+        {{> post-card}}
+      {{/foreach}}
+    </div>
+  {{else}}
+    <div class="empty-state">
+      <h3>No stories yet</h3>
+    </div>
+  {{/if}}
+</div>

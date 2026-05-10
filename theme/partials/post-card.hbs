@@ -1,0 +1,16 @@
+<a href="{{url}}" class="post-row">
+  {{#if feature_image}}
+    <div class="post-thumb">
+      <img src="{{img_url feature_image size="s"}}" alt="{{title}}" loading="lazy">
+    </div>
+  {{else}}
+    <div class="post-thumb-placeholder"></div>
+  {{/if}}
+  <div>
+    <div class="post-row-tag">{{#primary_tag}}{{name}}{{/primary_tag}}</div>
+    <div class="post-row-title">{{title}}</div>
+    <div class="post-row-meta">
+      {{date format="MMM D, YYYY"}} · {{reading_time}}
+    </div>
+  </div>
+</a>

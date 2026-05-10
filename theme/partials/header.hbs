@@ -1,0 +1,45 @@
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+
+    <a href="{{@site.url}}" class="site-logo">
+      {{@site.title}}<span>.</span>
+    </a>
+
+    <nav class="site-nav">
+      {{#foreach @site.navigation}}
+        <a href="{{url}}" {{#if current}}style="color:var(--text-secondary)"{{/if}}>{{label}}</a>
+      {{/foreach}}
+
+      {{#if @member}}
+        <a href="/#/portal/account" class="nav-signin">Account</a>
+      {{else}}
+        <a href="/#/portal/signin" class="nav-signin">Sign In</a>
+      {{/if}}
+
+      <a href="/write" class="nav-write" style="display:none">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Write
+      </a>
+    </nav>
+
+  </div>
+</header>
+<script>
+(function() {
+  var writeBtn = document.querySelector('.nav-write');
+  if (!writeBtn) return;
+  fetch('/members/api/member/')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(m) {
+      if (m && Array.isArray(m.labels) && m.labels.some(function(l) {
+        return l.name.toLowerCase() === 'writer';
+      })) {
+        writeBtn.style.display = '';
+      }
+    })
+    .catch(function() {});
+})();
+</script>
